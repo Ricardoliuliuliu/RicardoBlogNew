@@ -7,9 +7,12 @@
     "dev": "node scripts/build-posts.cjs && vite",
     "build": "node scripts/build-posts.cjs && vite build",
     "build:posts": "node scripts/build-posts.cjs",
-    "preview": "vite preview"
+    "preview": "npm run build && wrangler dev",
+    "deploy": "npm run build && wrangler deploy"
   },
   "devDependencies": {
-    "vite": "^8.0.12"
+    "@cloudflare/vite-plugin": "^1.39.2",
+    "vite": "^8.0.12",
+    "wrangler": "^4.97.0"
   }
 }
