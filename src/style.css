@@ -5,15 +5,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
 
 :root {
-  /* Curated Light Theme Palette - Nordic Mist Gray & Olive Clashing */
-  --bg-color: #e9ecef;          
-  --panel-bg: #ffffff;          
-  --panel-bg-subtle: #f1f3f5;   
-  --border-color: rgba(15, 23, 42, 0.08); 
-  --border-focus: #0f172a;      
-  --text-primary: #0f172a;      
-  --text-secondary: #334155;    
-  --text-muted: #64748b;        
+  /* Curated Warm Paper Theme Palette - Premium Alabaster Cream & Olive Accent */
+  --bg-color: #f6f3eb;          
+  --panel-bg: #fefdfb;          
+  --panel-bg-subtle: #eae6db;   
+  --border-color: rgba(68, 60, 48, 0.11); 
+  --border-focus: #1c1917;      
+  --text-primary: #1c1917;      
+  --text-secondary: #44403c;    
+  --text-muted: #78716c;        
   
   /* Accent Colors - Restored Olive & Lime Green */
   --accent: #84cc16;            
@@ -165,7 +165,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: rgba(233, 236, 239, 0.55);
+  background-color: rgba(246, 243, 235, 0.65);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   position: sticky;

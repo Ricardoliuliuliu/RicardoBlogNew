@@ -55,7 +55,7 @@ const UI_TEXT = {
     profileRole: '<span class="role-goal">Goal to become</span><span class="role-name">Senior Backend Architect</span>',
     profileStatusText: "Active Coding",
     profileFocusLabel: "FOCUS:",
-    profileFocusVal: "UI Architecture & Performance Optimization",
+    profileFocusVal: "Backend,AI,Fullstack",
     profileLocLabel: "LOCATION:",
     profileLocVal: "Chongqing, China",
     profileBioLabel: "BIO:",
@@ -108,7 +108,7 @@ const UI_TEXT = {
     profileRole: '<span class="role-goal">目标成为</span><span class="role-name">高级后端架构师、高级AI开发工程师、高级全栈牛马</span>',
     profileStatusText: "在线编码中",
     profileFocusLabel: "研究方向:",
-    profileFocusVal: "UI 架构与性能调优",
+    profileFocusVal: "后端开发、AI开发、全栈开发",
     profileLocLabel: "工作地点:",
     profileLocVal: "中国·重庆",
     profileBioLabel: "个人简介:",
@@ -177,6 +177,7 @@ function router() {
     showPage('home');
     renderHomeFeed();
     initTelemetryAnimation();
+    updateRealtimeMetrics();
   } else {
     // Clear telemetry polling when leaving home page to optimize background performance
     if (telemetryInterval) {
@@ -306,6 +307,30 @@ function initTelemetryAnimation() {
 
   updateMeters();
   telemetryInterval = setInterval(updateMeters, 1500);
+}
+
+async function updateRealtimeMetrics() {
+  const pvVal = document.getElementById('param-pv-value');
+  const statusVal = document.getElementById('param-status-value');
+
+  try {
+    const response = await fetch('/api/analytics');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    
+    if (pvVal && data.pageViews !== undefined) {
+      pvVal.innerText = `${data.pageViews.toLocaleString()} PV`;
+    }
+    if (statusVal && data.bandwidthMB !== undefined) {
+      const isZH = currentLang === 'zh';
+      statusVal.innerText = isZH ? `在线 (近7天流量: ${data.bandwidthMB}MB)` : `ONLINE (${data.bandwidthMB}MB Last 7d)`;
+      statusVal.style.color = 'var(--text-primary)';
+    }
+  } catch (err) {
+    console.warn("Cloudflare real-time analytics sync skipped or failed. Falling back to default metrics.", err);
+  }
 }
 
 // ==========================================================================
@@ -625,6 +650,7 @@ function updateLanguageUI() {
   const hash = window.location.hash || '#home';
   if (hash === '#home' || hash === '') {
     renderHomeFeed();
+    updateRealtimeMetrics();
   } else if (hash === '#posts') {
     renderPostsList();
   } else if (hash.startsWith('#posts/')) {
@@ -950,12 +976,12 @@ function renderTimeline() {
 // 5. Developer Toolbox
 function renderProjects() {
   document.title = UI_TEXT[currentLang].titleProjects;
-  
+
   if (tsInterval) {
     clearInterval(tsInterval);
     tsInterval = null;
   }
-  
+
   const viewContainer = document.getElementById('tool-view-container');
   if (!viewContainer) return;
 
@@ -972,15 +998,15 @@ function renderProjects() {
         sidebarNav.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
         e.target.classList.add('active');
         currentTool = e.target.getAttribute('data-tool');
-        
+
         if (typeof TextScrambler !== 'undefined') {
           const scrambler = new TextScrambler(e.target);
           scrambler.setText(e.target.innerText);
         }
-        
+
         initActiveTool();
       });
-      
+
       if (btn.getAttribute('data-tool') === currentTool) {
         btn.classList.add('active');
       } else {
