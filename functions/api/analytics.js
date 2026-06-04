@@ -12,7 +12,7 @@ export async function onRequest(context) {
     });
   }
 
-  // GraphQL query: fetch the sum of page views, requests, and bytes in the last 7 days
+  // GraphQL query: fetch the sum of page views, requests, bytes and uniques in the last 7 days
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString().split('T')[0];
   const query = {
     query: `
@@ -24,6 +24,9 @@ export async function onRequest(context) {
                 pageViews
                 requests
                 bytes
+              }
+              uniq {
+                uniques
               }
             }
           }
@@ -66,14 +69,16 @@ export async function onRequest(context) {
       acc.pageViews += curr.sum.pageViews || 0;
       acc.requests += curr.sum.requests || 0;
       acc.bytes += curr.sum.bytes || 0;
+      acc.uniques += curr.uniq ? (curr.uniq.uniques || 0) : 0;
       return acc;
-    }, { pageViews: 0, requests: 0, bytes: 0 });
+    }, { pageViews: 0, requests: 0, bytes: 0, uniques: 0 });
 
     // Format metrics
     const payload = {
       pageViews: stats.pageViews,
       requests: stats.requests,
-      bandwidthMB: Math.round(stats.bytes / (1024 * 1024))
+      bandwidthMB: Math.round(stats.bytes / (1024 * 1024)),
+      uniques: stats.uniques
     };
 
     return new Response(JSON.stringify(payload), {

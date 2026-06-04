@@ -72,6 +72,7 @@ const UI_TEXT = {
     liveActivityGraph: "Realtime Server Activity",
     relayParameters: "Site Parameters",
     orbitRotation: "TOTAL READS",
+    lblVisitors: "UNIQUE VISITORS",
     coreEncryption: "SSL ENCRYPTION",
     emergencyBeacon: "CONTACT STATUS",
     statusSecure: "STATUS: OPERATIONAL",
@@ -125,6 +126,7 @@ const UI_TEXT = {
     liveActivityGraph: "服务器实时活动图",
     relayParameters: "站点性能参数",
     orbitRotation: "文章总阅读量",
+    lblVisitors: "独立访客人数",
     coreEncryption: "SSL 安全证书",
     emergencyBeacon: "联络信道状态",
     statusSecure: "状态: 正常运行",
@@ -311,6 +313,7 @@ function initTelemetryAnimation() {
 
 async function updateRealtimeMetrics() {
   const pvVal = document.getElementById('param-pv-value');
+  const uvVal = document.getElementById('param-uv-value');
   const statusVal = document.getElementById('param-status-value');
 
   try {
@@ -322,6 +325,9 @@ async function updateRealtimeMetrics() {
     
     if (pvVal && data.pageViews !== undefined) {
       pvVal.innerText = `${data.pageViews.toLocaleString()} PV`;
+    }
+    if (uvVal && data.uniques !== undefined) {
+      uvVal.innerText = `${data.uniques.toLocaleString()} UV`;
     }
     if (statusVal && data.bandwidthMB !== undefined) {
       const isZH = currentLang === 'zh';
@@ -615,6 +621,7 @@ function updateLanguageUI() {
   // Site params
   setTxt('panel-title-relays', dict.relayParameters);
   setTxt('lbl-rotation', dict.orbitRotation);
+  setTxt('lbl-visitors', dict.lblVisitors);
   setTxt('lbl-encryption', dict.coreEncryption);
   setTxt('lbl-beacon', dict.emergencyBeacon);
 
