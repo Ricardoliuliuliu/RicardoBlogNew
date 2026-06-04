@@ -1,0 +1,15 @@
+{
+  "name": "blognew-web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/build-posts.cjs && vite",
+    "build": "node scripts/build-posts.cjs && vite build",
+    "build:posts": "node scripts/build-posts.cjs",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^8.0.12"
+  }
+}

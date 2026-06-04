@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- SEO Optimization -->
+  <title>DevLog Panel - Ricardo's Technical Blog</title>
+  <meta name="description" content="Ricardo 的个人技术博客。一个极简、高技术感的前端开发日志，记录前端架构、Web性能调优、UI故障排除及简约设计系统的开发记录。">
+  <meta name="keywords" content="Ricardo, 个人博客, 极简设计, 前端开发, CSS, JavaScript, Vite, 性能优化">
+  <meta name="author" content="Ricardo">
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+
+<body>
+  <!-- Subtle CRT Screen Scanline Layer -->
+  <div class="scanlines"></div>
+
+  <div id="app">
+    <div class="container">
+
+      <!-- TECHNICAL HUD HEADER -->
+      <header id="hud-nav-header">
+        <div class="system-tag">
+          <div class="system-status" id="sys-status-indicator"></div>
+          <div class="logo-text" id="logo-anchor">DEVLOG <span>// PANEL</span></div>
+        </div>
+
+        <!-- Dynamic Navigation Links -->
+        <nav id="primary-navigation">
+          <span class="nav-link active" data-route="#home" data-scramble id="nav-overview"
+            onclick="window.location.hash='#home'">[ OVERVIEW ]</span>
+          <span class="nav-link" data-route="#posts" data-scramble id="nav-directory"
+            onclick="window.location.hash='#posts'">[ ARTICLES ]</span>
+          <span class="nav-link" data-route="#timeline" data-scramble id="nav-timeline"
+            onclick="window.location.hash='#timeline'">[ TIMELINE ]</span>
+          <span class="nav-link" data-route="#projects" data-scramble id="nav-modules"
+            onclick="window.location.hash='#projects'">[ TOOLBOX ]</span>
+        </nav>
+
+        <!-- Technical Telemetry Clocks & Language Switcher -->
+        <div class="hud-clock" style="display:flex; align-items:center; gap:1.5rem;">
+          <span id="utc-clock-panel">UTC: <span id="utc-clock">0000-00-00 00:00:00</span></span>
+          <span id="local-clock-panel">LOC: <span id="local-clock">0000-00-00 00:00:00</span></span>
+          <span id="lang-switcher" class="nav-link"
+            style="border: 1px solid var(--border-color); border-radius: 30px; font-weight: bold; cursor: pointer; text-decoration: none; padding: 0.2rem 0.6rem; user-select: none;">ZH</span>
+        </div>
+      </header>
+
+      <!-- HUD MARQUEE TICKER (Monolume Style) -->
+      <div class="marquee-container">
+        <div class="marquee-content">
+          <!-- Injected dynamically in main.js -->
+        </div>
+      </div>
+
+      <!-- MAIN WORKSPACE -->
+      <main id="main-content">
+
+        <!-- 1. HOME PORTAL PAGE -->
+        <section id="home" class="page active">
+          <h1 class="brutalist-header" id="header-home">OVERVIEW</h1>
+
+          <div class="dashboard-grid">
+
+            <!-- Left Console Panel -->
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+              <div class="technical-panel profile-panel">
+                <div class="panel-header">
+                  <div class="panel-title" id="title-greeting">About the Author</div>
+                  <div class="panel-decor-lines"></div>
+                </div>
+
+                <div class="profile-layout">
+                  <!-- Avatar column -->
+                  <div class="profile-avatar-container">
+                    <img src="/avatar.jpg" alt="Ricardo Avatar" class="profile-avatar">
+                    <div class="profile-status-badge">
+                      <span class="status-dot green-dot"></span>
+                      <span id="profile-status-text">Active Coding</span>
+                    </div>
+                  </div>
+
+                  <!-- Info column -->
+                  <div class="profile-info-container">
+                    <h2 class="profile-name" id="profile-name-text">Ricardo</h2>
+                    <div class="profile-title" id="profile-title-text"><span class="role-goal">Goal to become</span><span class="role-name">Senior Backend Architect</span></div>
+
+                    <div class="profile-meta-list">
+                      <div class="profile-meta-item">
+                        <span class="meta-label" id="profile-focus-label">FOCUS:</span>
+                        <span class="meta-value" id="profile-focus-val">UI Engineering / Performance Optimization</span>
+                      </div>
+                      <div class="profile-meta-item">
+                        <span class="meta-label" id="profile-loc-label">LOCATION:</span>
+                        <span class="meta-value" id="profile-loc-val">Shanghai, China</span>
+                      </div>
+                      <div class="profile-meta-item">
+                        <span class="meta-label" id="profile-bio-label">BIO:</span>
+                        <span class="meta-value" id="profile-bio-val">Passionate about designing clean web
+                          architectures, crafting minimal design systems, and building smooth 60FPS digital user
+                          interfaces.</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Tech Stack Rows -->
+                <div class="profile-tech-section">
+                  <div class="tech-group">
+                    <div class="tech-group-title" id="tech-group-fe-title">FRONTEND</div>
+                    <div class="badge-row">
+                      <span class="tech-badge">SpringBoot</span>
+                      <span class="tech-badge">Spring Cloud Alibaba</span>
+                      <span class="tech-badge">Dubbo</span>
+                      <span class="tech-badge">Redis</span>
+                      <span class="tech-badge">MySQL</span>
+                      <span class="tech-badge">Oracle</span>
+                      <span class="tech-badge">MQ</span>
+                    </div>
+                  </div>
+
+                  <div class="tech-group">
+                    <div class="tech-group-title" id="tech-group-tools-title">BUILD & DEV</div>
+                    <div class="badge-row">
+                      <span class="tech-badge">LangChain</span>
+                      <span class="tech-badge">LangGraph</span>
+                      <span class="tech-badge">RAG</span>
+                      <span class="tech-badge">Docker</span>
+                      <span class="tech-badge">Agent</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Interactive CLI Terminal Simulator -->
+              <div class="terminal-window">
+                <div class="terminal-header">
+                  <div class="terminal-title">TERMINAL://RICARDO/DEVLOG</div>
+                  <div class="terminal-dot-row">
+                    <div class="terminal-dot"></div>
+                    <div class="terminal-dot"></div>
+                    <div class="terminal-dot accent-dot"></div>
+                  </div>
+                </div>
+                <div class="terminal-body" id="terminal-body">
+                  <div class="terminal-output" id="terminal-output"></div>
+                  <div class="terminal-input-line">
+                    <span class="terminal-prompt" id="terminal-prompt-label">ricardo@devlog:~#</span>
+                    <input type="text" class="terminal-input" id="terminal-input" placeholder="Type 'help'..."
+                      autocomplete="off" spellcheck="false">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Latest Logs Feed -->
+              <div>
+                <div class="feed-header">
+                  <h2 class="feed-title" id="feed-title-latest">Latest Logs</h2>
+                  <a href="#posts" class="nav-link" id="feed-all-link" style="font-size:0.75rem;">[ VIEW ALL ARTICLES
+                    ]</a>
+                </div>
+                <div class="article-list" id="home-latest-posts">
+                  <!-- Injected by main.js -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Telemetry Panel -->
+            <aside class="dashboard-sidebar">
+              <div class="technical-panel">
+                <div class="panel-header">
+                  <div class="panel-title" id="panel-title-telemetry">Server Status</div>
+                  <div class="panel-decor-lines"></div>
+                </div>
+
+                <div class="telemetry-row">
+                  <div class="telemetry-label">
+                    <span id="lbl-cpu">CPU USAGE</span>
+                    <span id="stat-cpu-val">0%</span>
+                  </div>
+                  <div class="telemetry-bar-bg">
+                    <div class="telemetry-bar-fill" id="stat-cpu-fill"></div>
+                  </div>
+                </div>
+
+                <div class="telemetry-row">
+                  <div class="telemetry-label">
+                    <span id="lbl-mem">RAM USAGE</span>
+                    <span id="stat-mem-val">0%</span>
+                  </div>
+                  <div class="telemetry-bar-bg">
+                    <div class="telemetry-bar-fill" id="stat-mem-fill"></div>
+                  </div>
+                </div>
+
+                <div class="telemetry-row">
+                  <div class="telemetry-label">
+                    <span id="lbl-band">PAGE LOAD SPEED</span>
+                    <span id="stat-band-val">0 MB/S</span>
+                  </div>
+                  <div class="telemetry-bar-bg">
+                    <div class="telemetry-bar-fill" id="stat-band-fill"></div>
+                  </div>
+                </div>
+
+                <div class="telemetry-row" style="margin-top: 1.5rem;">
+                  <div class="telemetry-label">
+                    <span id="lbl-uptime">HOST UPTIME</span>
+                    <span id="sys-uptime" style="color: var(--text-primary); font-weight: 500;">000H 00M 00S</span>
+                  </div>
+                </div>
+
+                <div class="panel-header"
+                  style="margin-top: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+                  <div class="panel-title" id="title-live-graph" style="font-size: 0.75rem;">Live Activity Graph</div>
+                </div>
+                <div class="chart-container" id="telemetry-chart">
+                  <!-- Rendered dynamically -->
+                </div>
+              </div>
+
+              <!-- Technical Info Widget -->
+              <div class="technical-panel">
+                <div class="panel-header">
+                  <div class="panel-title" id="panel-title-relays">Site Parameters</div>
+                  <div class="panel-decor-lines"></div>
+                </div>
+                <div
+                  style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.5rem;">
+                  <div style="display:flex; justify-content:space-between;">
+                    <span id="lbl-rotation">TOTAL READS</span>
+                    <span style="color: var(--text-primary); font-weight: 500;">12,840 PV</span>
+                  </div>
+                  <div style="display:flex; justify-content:space-between;">
+                    <span id="lbl-encryption">SSL ENCRYPTION</span>
+                    <span style="color: var(--text-primary); font-weight: 500;">ACTIVE (HTTPS)</span>
+                  </div>
+                  <div style="display:flex; justify-content:space-between;">
+                    <span id="lbl-beacon">CONTACT STATUS</span>
+                    <span style="color: var(--text-muted);">ONLINE</span>
+                  </div>
+                </div>
+              </div>
+            </aside>
+
+          </div>
+        </section>
+
+        <!-- 2. ARTICLE ARCHIVE DIRECTORY PAGE -->
+        <section id="posts" class="page">
+          <h1 class="brutalist-header" id="header-posts">ARTICLE DIRECTORY</h1>
+
+          <div class="feed-header">
+            <h2 class="feed-title" id="feed-title-directory">Article Category Archive</h2>
+            <div class="feed-filters" id="posts-filters">
+              <!-- Filter buttons injected by main.js -->
+            </div>
+          </div>
+          <div class="article-list" id="posts-container" style="margin-bottom: 2rem;">
+            <!-- Injected by main.js -->
+          </div>
+        </section>
+
+        <!-- 3. ARTICLE READER VIEW (DYNAMIC SINGLE POST) -->
+        <section id="post-detail" class="page">
+          <div id="reader-area" class="reader-grid">
+            <!-- Reader view contents dynamically generated in main.js -->
+          </div>
+        </section>
+
+        <!-- 4. CAPTAIN'S LOG TIMELINE PAGE -->
+        <section id="timeline" class="page">
+          <h1 class="brutalist-header" id="header-timeline">BUILD CHANGELOG</h1>
+
+          <div class="feed-header">
+            <h2 class="feed-title" id="feed-title-timeline">Development Chronicle</h2>
+            <span style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted);" id="lbl-order">[
+              ORDER: CHRONOLOGICAL ]</span>
+          </div>
+          <div class="timeline-container" id="timeline-feed" style="margin-bottom: 2rem;">
+            <!-- Injected by main.js -->
+          </div>
+        </section>
+
+        <!-- 5. ACTIVE MODULES (PROJECTS) PAGE -->
+        <section id="projects" class="page">
+          <h1 class="brutalist-header" id="header-projects">TOOLBOX</h1>
+
+          <div class="feed-header">
+            <h2 class="feed-title" id="feed-title-modules">Developer Utility Suite</h2>
+            <span style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted);"
+              id="lbl-diagnostics">[ STATUS: OPERATIONAL ]</span>
+          </div>
+
+          <div class="toolbox-layout" style="margin-bottom: 2rem;">
+            <div class="toolbox-sidebar" id="toolbox-sidebar-nav">
+              <button class="tool-btn active" data-tool="jwt" id="tool-btn-jwt">JWT DECODER</button>
+              <button class="tool-btn" data-tool="timestamp" id="tool-btn-timestamp">TIMESTAMP CONVERTER</button>
+              <button class="tool-btn" data-tool="base64" id="tool-btn-base64">BASE64 CODER</button>
+              <button class="tool-btn" data-tool="regex" id="tool-btn-regex">REGEX TESTER</button>
+            </div>
+            
+            <div class="toolbox-content technical-panel">
+              <div id="tool-view-container">
+                <!-- Tool views injected dynamically by main.js -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+      <!-- SYSTEM HUD FOOTER -->
+      <footer id="hud-nav-footer">
+        <div class="footer-section">
+          <div class="footer-brand" id="footer-version">DEVLOG ENGINE V1.2.4</div>
+          <div class="footer-status" id="footer-secure">STATUS: OPERATIONAL</div>
+        </div>
+
+        <div class="footer-section" style="min-width: auto;">
+          <div class="footer-heading">CONNECT</div>
+          <div class="footer-social-icons">
+            <a href="https://github.com" target="_blank" rel="noopener noreferrer" title="GitHub"
+              class="social-icon-link">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"
+                  d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.577.688.479C19.138 20.162 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
+              </svg>
+            </a>
+            <a href="https://x.com" target="_blank" rel="noopener noreferrer" title="Twitter / X"
+              class="social-icon-link">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path fill="currentColor"
+                  d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+            </a>
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" title="LinkedIn"
+              class="social-icon-link">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path fill="currentColor"
+                  d="M22.23 0H1.77C.8 0 0 .77 0 1.72v20.56C0 23.23.8 24 1.77 24h20.46c.98 0 1.77-.77 1.77-1.72V1.72C24 .77 23.2 0 22.23 0zM7.12 20.45H3.56V9h3.56v11.45zM5.34 7.43c-1.14 0-2.06-.92-2.06-2.06 0-1.14.92-2.06 2.06-2.06 1.14 0 2.06.92 2.06 2.06 0 1.14-.92 2.06-2.06 2.06zm15.11 13.02h-3.56v-5.6c0-1.34-.03-3.05-1.86-3.05-1.86 0-2.14 1.45-2.14 2.95v5.7H9.33V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29z" />
+              </svg>
+            </a>
+            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" title="Facebook"
+              class="social-icon-link">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path fill="currentColor"
+                  d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1V12h3v3h-3v6.8c4.56-.93 8-4.96 8-9.8z" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </footer>
+
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>
