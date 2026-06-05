@@ -3,6 +3,19 @@ import { projects } from './mockData.js';
 import { gitLog } from './gitLog.js';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/atom-one-dark.css';
+import mermaid from 'mermaid';
+
+// Initialize Mermaid for light theme matching Monolume warm paper
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'neutral',
+  securityLevel: 'loose',
+  flowchart: {
+    useMaxWidth: true,
+    htmlLabels: true,
+    curve: 'basis'
+  }
+});
 
 // Global variables
 let activeCategory = 'ALL';
@@ -870,35 +883,25 @@ function renderPostDetail(postId) {
   function parseMarkdown(md) {
     let html = md.trim();
 
-    // Images: ![alt](url)
-    html = html.replace(/\!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" class="post-image" />');
-
-    // Links: [text](url)
-    html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-
-    // Tables
-    const tableRegex = /\|(.+)\|[\r\n]+\|[\s:\-|]+\|[\r\n]+((?:\|.+\|[\r\n]*)+)/g;
-    html = html.replace(tableRegex, (match, headerRow, bodyRows) => {
-      const headers = headerRow.split('|').map(h => h.trim()).filter(h => h);
-      const rows = bodyRows.split('\n')
-        .map(row => row.trim())
-        .filter(row => row)
-        .map(row => {
-          const cells = row.split('|').map(c => c.trim()).filter(c => c);
-          return `<tr>${cells.map(c => `<td>${c}</td>`).join('')}</tr>`;
-        }).join('');
-
-      return `<table>\n<thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>\n<tbody>${rows}</tbody>\n</table>\n\n`;
-    });
-
-    // Code blocks with syntax highlighting placeholders
+    // 1. Extract code blocks (handling mermaid blocks separately)
+    const codeBlocks = [];
     html = html.replace(/\`\`\`([a-zA-Z0-9+#-]+)?\r?\n([\s\S]*?)\`\`\`/g, (match, lang, code) => {
       const displayLang = lang ? lang.toUpperCase() : 'CODE';
+      
+      // If it is mermaid diagram, wrap it in a direct div and don't escape or highlight
+      if (lang && lang.toLowerCase() === 'mermaid') {
+        const blockHtml = `<div class="mermaid">${code.trim()}</div>`;
+        const placeholder = `<!--CODE_BLOCK_PLACEHOLDER_${codeBlocks.length}-->`;
+        codeBlocks.push(blockHtml);
+        return '\n\n' + placeholder + '\n\n';
+      }
+
       const escapedCode = code
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
-      return `<div class="code-block-container">
+        
+      const blockHtml = `<div class="code-block-container">
         <div class="code-block-header">
           <div class="mac-controls">
             <span class="mac-dot mac-close"></span>
@@ -910,45 +913,133 @@ function renderPostDetail(postId) {
         </div>
         <pre><code class="language-${lang || 'txt'}">${escapedCode.trim()}</code></pre>
       </div>`;
+      
+      const placeholder = `<!--CODE_BLOCK_PLACEHOLDER_${codeBlocks.length}-->`;
+      codeBlocks.push(blockHtml);
+      return '\n\n' + placeholder + '\n\n';
     });
 
-    // Inline codes
+    // 2. Parse inline styles (links, images, bold, inline code, italics)
+    html = html.replace(/\!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" class="post-image" />');
+    html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
     html = html.replace(/\`([\s\S]*?)\`/g, '<code>$1</code>');
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
 
-    // Headers h1, h2, h3
-    html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
-    html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
-    html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
-
-    // Bullet list blocks
-    html = html.replace(/(?:^\s*-\s+.*(?:\r?\n|$))+/gm, (match) => {
+    // 3. Bullet list blocks (run globally so list items contiguous to paragraphs are separated)
+    html = html.replace(/(?:^[ \t]*-[ \t]+.*(?:\r?\n|$))+/gm, (match) => {
       const items = match.trim().split('\n').map(line => {
-        const itemText = line.replace(/^\s*-\s+/, '').trim();
+        const itemText = line.replace(/^[ \t]*-[ \t]+/, '').trim();
         return `<li>${itemText}</li>`;
       }).join('\n');
-      return `<ul>\n${items}\n</ul>\n\n`;
+      return `\n\n<ul>\n${items}\n</ul>\n\n`;
     });
 
-    // Number list blocks
-    html = html.replace(/(?:^\s*\d+\.\s+.*(?:\r?\n|$))+/gm, (match) => {
+    // 4. Number list blocks
+    html = html.replace(/(?:^[ \t]*\d+\.\s+.*(?:\r?\n|$))+/gm, (match) => {
       const items = match.trim().split('\n').map(line => {
-        const itemText = line.replace(/^\s*\d+\.\s+/, '').trim();
+        const itemText = line.replace(/^[ \t]*\d+\.\s+/, '').trim();
         return `<li>${itemText}</li>`;
       }).join('\n');
-      return `<ol>\n${items}\n</ol>\n\n`;
+      return `\n\n<ol>\n${items}\n</ol>\n\n`;
     });
 
-    // Blockquotes & Warnings (Anchored to beginning of line ^)
-    html = html.replace(/^\>\s*\[!WARNING\]([\s\S]*?)(?=\n\n|\n*$)/gim, `<blockquote><strong>[${isZH ? '警告提示' : 'WARNING ALERT'}]:</strong>$1</blockquote>`);
-    html = html.replace(/^\>\s*(.*$)/gim, '<blockquote>$1</blockquote>');
+    // 5. Split into blocks by double newlines
+    const blocks = html.split(/\n\s*\n/);
+    
+    const parsedBlocks = blocks.map(block => {
+      const trimmed = block.trim();
+      if (!trimmed) return '';
 
-    // Paragraphs
-    html = html.split('\n\n').map(p => {
-      if (p.trim().startsWith('<') || p.trim().endsWith('>')) return p;
-      return `<p>${p.trim()}</p>`;
-    }).join('\n\n');
+      if (trimmed.startsWith('<!--CODE_BLOCK_PLACEHOLDER_')) {
+        return trimmed;
+      }
 
-    return html;
+      if (trimmed === '---') {
+        return '<hr class="post-hr" />';
+      }
+
+      const tableRegex = /^\|(.+)\|[\r\n]+\|[\s:\-|]+\|[\r\n]+((?:\|.+\|[\r\n]*)+)/;
+      if (tableRegex.test(trimmed)) {
+        return trimmed.replace(tableRegex, (match, headerRow, bodyRows) => {
+          const headers = headerRow.split('|').map(h => h.trim()).filter(h => h);
+          const rows = bodyRows.split('\n')
+            .map(row => row.trim())
+            .filter(row => row)
+            .map(row => {
+              const cells = row.split('|').map(c => c.trim()).filter(c => c);
+              return `<tr>${cells.map(c => `<td>${c}</td>`).join('')}</tr>`;
+            }).join('');
+          return `<table>\n<thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>\n<tbody>${rows}</tbody>\n</table>`;
+        });
+      }
+
+      if (trimmed.startsWith('### ')) {
+        return `<h3>${trimmed.slice(4)}</h3>`;
+      }
+      if (trimmed.startsWith('## ')) {
+        return `<h2>${trimmed.slice(3)}</h2>`;
+      }
+      if (trimmed.startsWith('# ')) {
+        return `<h1>${trimmed.slice(2)}</h1>`;
+      }
+
+      // Blockquotes & Alerts (Contiguous lines starting with '>')
+      if (trimmed.startsWith('>')) {
+        const lines = trimmed.split(/\r?\n/).map(line => line.replace(/^[ \t]*>[ \t]?/, ''));
+        const content = lines.join('\n').trim();
+
+        const alertMatch = content.match(/^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\r?\n?([\s\S]*)$/i);
+        if (alertMatch) {
+          const type = alertMatch[1].toUpperCase();
+          const alertContent = alertMatch[2].trim();
+          let title = '';
+          let icon = '';
+          if (type === 'NOTE') {
+            title = isZH ? '说明提示' : 'NOTE';
+            icon = '💡';
+          } else if (type === 'TIP') {
+            title = isZH ? '使用技巧' : 'TIP';
+            icon = '✨';
+          } else if (type === 'IMPORTANT') {
+            title = isZH ? '重要提示' : 'IMPORTANT';
+            icon = '📌';
+          } else if (type === 'WARNING') {
+            title = isZH ? '警告提示' : 'WARNING ALERT';
+            icon = '⚠️';
+          } else if (type === 'CAUTION') {
+            title = isZH ? '特别警告' : 'CAUTION';
+            icon = '🛑';
+          }
+
+          return `<div class="alert-block alert-${type.toLowerCase()}">
+            <div class="alert-title">
+              <span class="alert-icon">${icon}</span>
+              <span class="alert-type">${title}</span>
+            </div>
+            <div class="alert-content">${parseMarkdown(alertContent)}</div>
+          </div>`;
+        }
+
+        return `<blockquote>${parseMarkdown(content)}</blockquote>`;
+      }
+
+      // Check if this block is already wrapped in a block-level HTML tag to avoid double nesting
+      const blockTags = ['<div', '<blockquote', '<ol', '<ul', '<table', '<pre', '<h1', '<h2', '<h3', '<hr', '<!--'];
+      const isBlockTag = blockTags.some(tag => trimmed.startsWith(tag));
+      if (isBlockTag) return trimmed;
+
+      return `<p>${trimmed}</p>`;
+    });
+
+    let resultHtml = parsedBlocks.filter(b => b).join('\n\n');
+
+    // Restore code blocks
+    codeBlocks.forEach((blockHtml, index) => {
+      resultHtml = resultHtml.replace(`<!--CODE_BLOCK_PLACEHOLDER_${index}-->`, blockHtml);
+    });
+
+    return resultHtml;
   }
 
   // HTML Render
@@ -998,6 +1089,15 @@ function renderPostDetail(postId) {
   readerArea.querySelectorAll('pre code').forEach((el) => {
     hljs.highlightElement(el);
   });
+
+  // Render Mermaid diagrams dynamically
+  if (readerArea.querySelector('.mermaid')) {
+    mermaid.run({
+      querySelector: '.mermaid'
+    }).catch(err => {
+      console.error('Mermaid render error:', err);
+    });
+  }
 
   // Dynamic TOC generator
   const postBody = document.getElementById('post-body-content');

@@ -1263,6 +1263,105 @@ main {
   margin-bottom: 0;
 }
 
+/* Alert Callout Blocks */
+.post-content .alert-block {
+  margin: 1.5rem 0;
+  padding: 1.25rem 1.5rem;
+  border-left: 4px solid var(--text-primary);
+  border-radius: 12px;
+  background-color: var(--panel-bg);
+  box-shadow: var(--card-shadow);
+  transition: var(--transition);
+}
+
+.post-content .alert-block:hover {
+  box-shadow: var(--card-shadow-hover);
+}
+
+.post-content .alert-block.alert-note {
+  border-left-color: #3b82f6;
+  background-color: rgba(59, 130, 246, 0.05);
+}
+.post-content .alert-block.alert-note .alert-type {
+  color: #1d4ed8;
+}
+
+.post-content .alert-block.alert-tip {
+  border-left-color: #10b981;
+  background-color: rgba(16, 185, 129, 0.05);
+}
+.post-content .alert-block.alert-tip .alert-type {
+  color: #047857;
+}
+
+.post-content .alert-block.alert-important {
+  border-left-color: #8b5cf6;
+  background-color: rgba(139, 92, 246, 0.05);
+}
+.post-content .alert-block.alert-important .alert-type {
+  color: #6d28d9;
+}
+
+.post-content .alert-block.alert-warning {
+  border-left-color: var(--warning);
+  background-color: rgba(217, 119, 6, 0.05);
+}
+.post-content .alert-block.alert-warning .alert-type {
+  color: #b45309;
+}
+
+.post-content .alert-block.alert-caution {
+  border-left-color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.05);
+}
+.post-content .alert-block.alert-caution .alert-type {
+  color: #b91c1c;
+}
+
+.post-content .alert-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  font-family: var(--font-display);
+}
+
+.post-content .alert-icon {
+  font-size: 1.1rem;
+}
+
+.post-content .alert-content {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.post-content .alert-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Mermaid Container */
+.post-content .mermaid {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: auto;
+  box-shadow: var(--card-shadow);
+}
+
+.post-content .mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
 /* Post content tables */
 .post-content table {
   width: 100%;
