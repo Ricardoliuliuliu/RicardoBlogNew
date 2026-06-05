@@ -1,5 +1,6 @@
 import { blogPosts } from './blogPosts.js';
-import { timelineLogs, projects } from './mockData.js';
+import { projects } from './mockData.js';
+import { gitLog } from './gitLog.js';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/atom-one-dark.css';
 
@@ -1054,18 +1055,22 @@ function renderTimeline() {
 
   const isZH = currentLang === 'zh';
 
-  timelineEl.innerHTML = timelineLogs.map(log => {
-    const message = isZH ? log.zh : log.en;
+  timelineEl.innerHTML = gitLog.map(log => {
+    const message = log.subject;
+    const bodyText = log.body ? `<div class="timeline-body" style="font-size:0.8rem; color:var(--text-muted); margin-top:0.4rem; font-family:var(--font-mono); white-space:pre-wrap;">${log.body}</div>` : '';
+    
     return `
       <div class="timeline-item status-${log.status.toLowerCase()}">
         <div class="timeline-node"></div>
         <div class="timeline-content">
           <div class="timeline-meta">
             <span class="timeline-stardate">${log.stardate}</span>
-            <span class="timeline-category">${log.category} // ${log.date}</span>
+            <span class="timeline-category">${log.category} // ${log.date} ${log.time}</span>
           </div>
-          <div class="timeline-text">${message}</div>
-          <div style="margin-top:0.75rem; text-align:right;">
+          <div class="timeline-text" style="font-weight:600;">${message}</div>
+          ${bodyText}
+          <div style="margin-top:0.75rem; display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:0.7rem;">
+            <span style="color:var(--text-muted);">${isZH ? '提交者' : 'Author'}: ${log.author}</span>
             <span class="timeline-badge">${log.status}</span>
           </div>
         </div>
