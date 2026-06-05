@@ -74,11 +74,28 @@ export async function onRequest(context) {
     }, { pageViews: 0, requests: 0, bytes: 0, uniques: 0 });
 
     // Format metrics
+    const clientCf = context.request.cf ? {
+      colo: context.request.cf.colo || 'Unknown',
+      country: context.request.cf.country || 'Unknown',
+      city: context.request.cf.city || 'Unknown',
+      httpProtocol: context.request.cf.httpProtocol || 'Unknown',
+      asn: context.request.cf.asn || 'Unknown',
+      asOrganization: context.request.cf.asOrganization || 'Unknown'
+    } : {
+      colo: 'LOC',
+      country: 'CN',
+      city: 'Local Dev',
+      httpProtocol: 'HTTP/1.1',
+      asn: 0,
+      asOrganization: 'Local Loopback'
+    };
+
     const payload = {
       pageViews: stats.pageViews,
       requests: stats.requests,
       bandwidthMB: Math.round(stats.bytes / (1024 * 1024)),
-      uniques: stats.uniques
+      uniques: stats.uniques,
+      clientCf: clientCf
     };
 
     return new Response(JSON.stringify(payload), {

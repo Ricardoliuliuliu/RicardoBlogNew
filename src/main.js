@@ -73,7 +73,12 @@ const UI_TEXT = {
     relayParameters: "Site Parameters",
     orbitRotation: "TOTAL READS",
     lblVisitors: "UNIQUE VISITORS",
+    lblTraffic: "7D NETWORK TRAFFIC",
     coreEncryption: "SSL ENCRYPTION",
+    lblHttpVer: "HTTP PROTOCOL",
+    lblColo: "EDGE LOCATION",
+    lblLatency: "NETWORK LATENCY",
+    lblLoadTime: "PAGE LOAD TIME",
     emergencyBeacon: "CONTACT STATUS",
     statusSecure: "STATUS: OPERATIONAL",
     coreRelay: "Ricardo Blog V1.2.4",
@@ -127,7 +132,12 @@ const UI_TEXT = {
     relayParameters: "站点性能参数",
     orbitRotation: "文章总阅读量",
     lblVisitors: "独立访客人数",
+    lblTraffic: "近7天网站流量",
     coreEncryption: "SSL 安全证书",
+    lblHttpVer: "HTTP 协议版本",
+    lblColo: "访问边缘节点",
+    lblLatency: "客户端往返时延",
+    lblLoadTime: "首屏加载时间",
     emergencyBeacon: "联络信道状态",
     statusSecure: "状态: 正常运行",
     coreRelay: "Ricardo Blog V1.2.4",
@@ -257,13 +267,42 @@ function initSystemMetrics() {
 
 // Telemetry animation removed.
 
+function getPageLoadTime() {
+  try {
+    const nav = performance.getEntriesByType('navigation')[0];
+    if (nav && nav.duration > 0) return Math.round(nav.duration);
+    const t = performance.timing;
+    if (t) {
+      const loadTime = t.loadEventEnd - t.navigationStart;
+      if (loadTime > 0) return loadTime;
+      const domTime = t.domInteractive - t.navigationStart;
+      if (domTime > 0) return domTime;
+    }
+  } catch (e) {}
+  return Math.round(performance.now());
+}
+
 async function updateRealtimeMetrics() {
   const pvVal = document.getElementById('param-pv-value');
   const uvVal = document.getElementById('param-uv-value');
+  const trafficVal = document.getElementById('param-traffic-value');
+  const sslVal = document.getElementById('param-ssl-value');
+  const httpVal = document.getElementById('param-http-value');
+  const coloVal = document.getElementById('param-colo-value');
+  const latencyVal = document.getElementById('param-latency-value');
+  const loadVal = document.getElementById('param-load-value');
   const statusVal = document.getElementById('param-status-value');
 
+  // Initial local estimate for Page Load Time
+  if (loadVal) {
+    loadVal.innerText = `${getPageLoadTime()} ms`;
+  }
+
   try {
+    const startTime = performance.now();
     const response = await fetch('/api/analytics');
+    const latency = Math.round(performance.now() - startTime);
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -275,13 +314,40 @@ async function updateRealtimeMetrics() {
     if (uvVal && data.uniques !== undefined) {
       uvVal.innerText = `${data.uniques.toLocaleString()} UV`;
     }
-    if (statusVal && data.bandwidthMB !== undefined) {
+    if (trafficVal && data.bandwidthMB !== undefined) {
+      trafficVal.innerText = `${data.bandwidthMB} MB`;
+    }
+    if (sslVal) {
+      sslVal.innerText = 'ACTIVE (HTTPS)';
+    }
+    if (httpVal && data.clientCf && data.clientCf.httpProtocol) {
+      httpVal.innerText = data.clientCf.httpProtocol;
+    }
+    if (coloVal && data.clientCf && data.clientCf.colo) {
+      const cf = data.clientCf;
+      if (cf.city && cf.city !== 'Unknown' && cf.country && cf.country !== 'Unknown') {
+        coloVal.innerText = `${cf.colo} (${cf.city}, ${cf.country})`;
+      } else if (cf.country && cf.country !== 'Unknown') {
+        coloVal.innerText = `${cf.colo} (${cf.country})`;
+      } else {
+        coloVal.innerText = cf.colo;
+      }
+    }
+    if (latencyVal) {
+      latencyVal.innerText = `${latency} ms`;
+    }
+    if (statusVal) {
       const isZH = currentLang === 'zh';
-      statusVal.innerText = isZH ? `在线 (近7天流量: ${data.bandwidthMB}MB)` : `ONLINE (${data.bandwidthMB}MB Last 7d)`;
-      statusVal.style.color = 'var(--text-primary)';
+      statusVal.innerText = isZH ? '在线' : 'ONLINE';
+      statusVal.style.color = 'var(--text-success)';
     }
   } catch (err) {
     console.warn("Cloudflare real-time analytics sync skipped or failed. Falling back to default metrics.", err);
+    if (statusVal) {
+      const isZH = currentLang === 'zh';
+      statusVal.innerText = isZH ? '离线 (本地调试)' : 'OFFLINE (Local)';
+      statusVal.style.color = 'var(--text-muted)';
+    }
   }
 }
 
@@ -562,7 +628,12 @@ function updateLanguageUI() {
   setTxt('panel-title-relays', dict.relayParameters);
   setTxt('lbl-rotation', dict.orbitRotation);
   setTxt('lbl-visitors', dict.lblVisitors);
+  setTxt('lbl-traffic', dict.lblTraffic);
   setTxt('lbl-encryption', dict.coreEncryption);
+  setTxt('lbl-http-ver', dict.lblHttpVer);
+  setTxt('lbl-colo', dict.lblColo);
+  setTxt('lbl-latency', dict.lblLatency);
+  setTxt('lbl-load-time', dict.lblLoadTime);
   setTxt('lbl-beacon', dict.emergencyBeacon);
 
   // Page specific headers
