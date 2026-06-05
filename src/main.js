@@ -344,7 +344,7 @@ async function updateRealtimeMetrics() {
     if (statusVal) {
       const isZH = currentLang === 'zh';
       statusVal.innerText = isZH ? '在线' : 'ONLINE';
-      statusVal.style.color = 'var(--text-success)';
+      statusVal.style.color = 'var(--accent-dark)';
     }
   } catch (err) {
     console.warn("Cloudflare real-time analytics sync skipped or failed. Falling back to default metrics.", err);

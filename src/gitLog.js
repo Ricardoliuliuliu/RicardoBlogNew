@@ -2,6 +2,17 @@
 
 export const gitLog = [
   {
+    "id": "git-90fbb0e",
+    "stardate": "COMMIT-90FBB0E",
+    "date": "2026-06-05",
+    "time": "15:19:54",
+    "status": "OK",
+    "category": "COMMIT",
+    "author": "Ricardo",
+    "subject": "connect链接跳转修复",
+    "body": ""
+  },
+  {
     "id": "git-72bbc33",
     "stardate": "COMMIT-72BBC33",
     "date": "2026-06-05",
