@@ -178,14 +178,8 @@ function router() {
   if (hash === '#home' || hash === '') {
     showPage('home');
     renderHomeFeed();
-    initTelemetryAnimation();
     updateRealtimeMetrics();
   } else {
-    // Clear telemetry polling when leaving home page to optimize background performance
-    if (telemetryInterval) {
-      clearInterval(telemetryInterval);
-      telemetryInterval = null;
-    }
 
     if (hash === '#posts') {
       showPage('posts');
@@ -261,55 +255,7 @@ function initSystemMetrics() {
   setInterval(updateTimes, 1000);
 }
 
-let telemetryInterval;
-function initTelemetryAnimation() {
-  if (telemetryInterval) clearInterval(telemetryInterval);
-
-  const fillCpu = document.getElementById('stat-cpu-fill');
-  const labelCpu = document.getElementById('stat-cpu-val');
-  const fillMem = document.getElementById('stat-mem-fill');
-  const labelMem = document.getElementById('stat-mem-val');
-  const fillBand = document.getElementById('stat-band-fill');
-  const labelBand = document.getElementById('stat-band-val');
-  const chart = document.getElementById('telemetry-chart');
-
-  // Initialize interactive SVG chart bars
-  if (chart && chart.children.length === 0) {
-    for (let i = 0; i < 28; i++) {
-      const bar = document.createElement('div');
-      bar.className = 'chart-bar';
-      bar.style.height = `${Math.floor(Math.random() * 60) + 15}%`;
-      chart.appendChild(bar);
-    }
-  }
-
-  function updateMeters() {
-    const cpu = Math.floor(Math.random() * 35) + 12;
-    if (fillCpu) fillCpu.style.width = `${cpu}%`;
-    if (labelCpu) labelCpu.innerText = `${cpu}%`;
-
-    const mem = (Math.sin(Date.now() / 20000) * 5 + 42).toFixed(1);
-    if (fillMem) fillMem.style.width = `${mem}%`;
-    if (labelMem) labelMem.innerText = `${mem}%`;
-
-    const band = (Math.random() * 8 + 2.1).toFixed(1);
-    if (fillBand) fillBand.style.width = `${(band / 12) * 100}%`;
-    if (labelBand) labelBand.innerText = `${band} MB/S`;
-
-    if (chart) {
-      const bars = chart.getElementsByClassName('chart-bar');
-      if (bars.length > 0) {
-        for (let i = 0; i < bars.length - 1; i++) {
-          bars[i].style.height = bars[i + 1].style.height;
-        }
-        bars[bars.length - 1].style.height = `${cpu * 1.5}%`;
-      }
-    }
-  }
-
-  updateMeters();
-  telemetryInterval = setInterval(updateMeters, 1500);
-}
+// Telemetry animation removed.
 
 async function updateRealtimeMetrics() {
   const pvVal = document.getElementById('param-pv-value');
@@ -610,13 +556,7 @@ function updateLanguageUI() {
   setTxt('feed-title-latest', dict.latestLogs);
   setTxt('feed-all-link', dict.viewAllDirectory);
 
-  // Telemetry labels
-  setTxt('panel-title-telemetry', dict.telemetryTitle);
-  setTxt('lbl-cpu', dict.cpuLoad);
-  setTxt('lbl-mem', dict.memAllocation);
-  setTxt('lbl-band', dict.bandwidthTransmit);
-  setTxt('lbl-uptime', dict.systemUptime);
-  setTxt('title-live-graph', dict.liveActivityGraph);
+  // Telemetry labels removed
 
   // Site params
   setTxt('panel-title-relays', dict.relayParameters);
