@@ -1019,15 +1019,32 @@ main {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  padding-left: 0.75rem;
   border-left: 2px solid transparent;
 }
 
-.toc-item:hover,
-.toc-item.active {
+.toc-item.toc-h2 {
+  padding-left: 0.75rem;
+}
+
+.toc-item.toc-h2:hover,
+.toc-item.toc-h2.active {
   color: var(--text-primary);
   border-left-color: var(--text-primary);
   padding-left: 1rem;
+  font-weight: 500;
+}
+
+.toc-item.toc-h3 {
+  padding-left: 1.75rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.toc-item.toc-h3:hover,
+.toc-item.toc-h3.active {
+  color: var(--text-primary);
+  border-left-color: var(--text-primary);
+  padding-left: 2rem;
   font-weight: 500;
 }
 

@@ -503,8 +503,8 @@ function initTerminal() {
       case 'posts':
         response += isZH ? `<span class="cmd-header">已发表的文章列表:</span>\n` : `<span class="cmd-header">PUBLISHED POSTS:</span>\n`;
         blogPosts.forEach(post => {
-          const title = isZH ? post.zh.title : post.en.title;
-          response += `  • [${post.id}] - ${title} (${post.date})\n`;
+          const content = isZH ? post.zh : (post.en || post.zh);
+          response += `  • [${post.id}] - ${content.title} (${post.date})\n`;
         });
         break;
 
@@ -516,12 +516,11 @@ function initTerminal() {
         } else {
           const match = blogPosts.find(p => p.id === args[0]);
           if (match) {
-            const title = isZH ? match.zh.title : match.en.title;
-            const summary = isZH ? match.zh.summary : match.en.summary;
-            response += `<span class="cmd-header">${title.toUpperCase()}</span>
+            const content = isZH ? match.zh : (match.en || match.zh);
+            response += `<span class="cmd-header">${content.title.toUpperCase()}</span>
 Build: ${match.stardate} | Date: ${match.date}
 --------------------------------------------------
-${summary}
+${content.summary}
 
 ${isZH ? '页面阅读地址' : 'Go to page'}: <a href="#posts/${match.id}">#/posts/${match.id}</a>`;
           } else {
@@ -724,7 +723,7 @@ function renderHomeFeed() {
   const latestPosts = blogPosts.slice(0, 5); // Limit home screen to 5 latest articles
 
   homeFeed.innerHTML = latestPosts.map(post => {
-    const content = isZH ? post.zh : post.en;
+    const content = isZH ? post.zh : (post.en || post.zh);
     return `
       <div class="article-card" onclick="window.location.hash='#posts/${post.id}'">
         <div class="article-meta">
@@ -796,7 +795,7 @@ function renderPostsList() {
     container.innerHTML = `<div style="font-family:var(--font-mono); font-size:0.82rem; color:var(--text-muted); text-align:center; padding: 2rem 0;">${isZH ? '暂无文章' : 'NO ARTICLES FOUND'}</div>`;
   } else {
     container.innerHTML = paginatedPosts.map(post => {
-      const content = isZH ? post.zh : post.en;
+      const content = isZH ? post.zh : (post.en || post.zh);
       return `
         <div class="article-card" onclick="window.location.hash='#posts/${post.id}'">
           <div class="article-meta">
@@ -876,7 +875,7 @@ function renderPostDetail(postId) {
     return;
   }
 
-  const localizedPost = isZH ? post.zh : post.en;
+  const localizedPost = isZH ? post.zh : (post.en || post.zh);
   document.title = `${localizedPost.title} - ${dict.titleHome}`;
 
   // Simple Markdown Parser (Headers, lists, tables, alerts)
@@ -974,6 +973,15 @@ function renderPostDetail(postId) {
         });
       }
 
+      if (trimmed.startsWith('###### ')) {
+        return `<h6>${trimmed.slice(7)}</h6>`;
+      }
+      if (trimmed.startsWith('##### ')) {
+        return `<h5>${trimmed.slice(6)}</h5>`;
+      }
+      if (trimmed.startsWith('#### ')) {
+        return `<h4>${trimmed.slice(5)}</h4>`;
+      }
       if (trimmed.startsWith('### ')) {
         return `<h3>${trimmed.slice(4)}</h3>`;
       }
@@ -1099,17 +1107,18 @@ function renderPostDetail(postId) {
     });
   }
 
-  // Dynamic TOC generator
+  // Dynamic TOC generator (supports H1, H2 and H3)
   const postBody = document.getElementById('post-body-content');
   const tocList = document.getElementById('toc-list');
   if (postBody && tocList) {
-    const headings = postBody.querySelectorAll('h3');
+    const headings = postBody.querySelectorAll('h1, h2, h3');
     headings.forEach((heading, idx) => {
       const id = `heading-${idx}`;
       heading.id = id;
 
       const li = document.createElement('li');
-      li.className = 'toc-item';
+      const isH3 = heading.tagName.toLowerCase() === 'h3';
+      li.className = `toc-item ${isH3 ? 'toc-h3' : 'toc-h2'}`;
       if (idx === 0) li.classList.add('active');
       li.innerText = heading.innerText.replace('▶ ', '');
       li.addEventListener('click', () => {
@@ -1124,7 +1133,7 @@ function renderPostDetail(postId) {
 }
 
 function handleTocHighlight() {
-  const headings = document.querySelectorAll('#post-body-content h3');
+  const headings = document.querySelectorAll('#post-body-content h1, #post-body-content h2, #post-body-content h3');
   const tocItems = document.querySelectorAll('#toc-list .toc-item');
   if (headings.length === 0 || tocItems.length === 0) return;
 
