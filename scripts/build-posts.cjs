@@ -110,6 +110,21 @@ function run() {
   let commits = [];
   try {
     const { execSync } = require('child_process');
+    
+    // Check if it's a shallow clone (very common in Cloudflare Pages / CI builders)
+    const gitDir = path.join(__dirname, '../.git');
+    if (fs.existsSync(path.join(gitDir, 'shallow'))) {
+      console.log('Detected shallow clone on build agent. Fetching history to construct commit log...');
+      try {
+        execSync('git fetch --unshallow', { stdio: 'ignore' });
+      } catch (err) {
+        console.warn('Failed to unshallow git repository. Attempting fetch with depth limit...', err);
+        try {
+          execSync('git fetch --depth=50', { stdio: 'ignore' });
+        } catch (depthErr) {}
+      }
+    }
+
     const output = execSync('git log -n 30 --pretty=format:"%h|||%an|||%ai|||%s|||%b@@@"', { encoding: 'utf-8' });
     
     commits = output.split('@@@')
