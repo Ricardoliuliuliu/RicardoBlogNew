@@ -1,11 +1,15 @@
 import { blogPosts } from './blogPosts.js';
 import { timelineLogs, projects } from './mockData.js';
+import hljs from 'highlight.js';
+import 'highlight.js/styles/atom-one-dark.css';
 
 // Global variables
 let activeCategory = 'ALL';
 let currentLang = localStorage.getItem('lang') || 'zh'; // Default to Chinese
 let currentTool = 'jwt';
 let tsInterval = null;
+let currentPage = 1;
+const POSTS_PER_PAGE = 5;
 
 // Global copy helpers for HTML actions
 window.copyCodeText = function (btn) {
@@ -703,8 +707,9 @@ function renderHomeFeed() {
   if (!homeFeed) return;
 
   const isZH = currentLang === 'zh';
+  const latestPosts = blogPosts.slice(0, 5); // Limit home screen to 5 latest articles
 
-  homeFeed.innerHTML = blogPosts.map(post => {
+  homeFeed.innerHTML = latestPosts.map(post => {
     const content = isZH ? post.zh : post.en;
     return `
       <div class="article-card" onclick="window.location.hash='#posts/${post.id}'">
@@ -732,6 +737,7 @@ function renderPostsList() {
   document.title = UI_TEXT[currentLang].titlePosts;
   const container = document.getElementById('posts-container');
   const filtersEl = document.getElementById('posts-filters');
+  const paginationEl = document.getElementById('posts-pagination');
   if (!container) return;
 
   const isZH = currentLang === 'zh';
@@ -748,6 +754,7 @@ function renderPostsList() {
     filtersEl.querySelectorAll('.filter-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         activeCategory = btn.getAttribute('data-category');
+        currentPage = 1; // Reset page on category change
         renderPostsList();
       });
     });
@@ -758,26 +765,85 @@ function renderPostsList() {
     ? blogPosts
     : blogPosts.filter(p => p.category.toUpperCase() === activeCategory);
 
-  container.innerHTML = filtered.map(post => {
-    const content = isZH ? post.zh : post.en;
-    return `
-      <div class="article-card" onclick="window.location.hash='#posts/${post.id}'">
-        <div class="article-meta">
-          <div class="article-meta-left">
-            <span>ID: <span>[${post.id.slice(0, 10)}]</span></span>
-            <span>CATEGORY: <span>${post.category}</span></span>
-            <span>READ TIME: <span>${post.readTime}</span></span>
+  // Pagination calculation
+  const totalPosts = filtered.length;
+  const totalPages = Math.ceil(totalPosts / POSTS_PER_PAGE) || 1;
+  
+  // Guard current page boundaries
+  if (currentPage > totalPages) currentPage = totalPages;
+  if (currentPage < 1) currentPage = 1;
+
+  const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
+  const endIndex = startIndex + POSTS_PER_PAGE;
+  const paginatedPosts = filtered.slice(startIndex, endIndex);
+
+  // Render Posts
+  if (paginatedPosts.length === 0) {
+    container.innerHTML = `<div style="font-family:var(--font-mono); font-size:0.82rem; color:var(--text-muted); text-align:center; padding: 2rem 0;">${isZH ? '暂无文章' : 'NO ARTICLES FOUND'}</div>`;
+  } else {
+    container.innerHTML = paginatedPosts.map(post => {
+      const content = isZH ? post.zh : post.en;
+      return `
+        <div class="article-card" onclick="window.location.hash='#posts/${post.id}'">
+          <div class="article-meta">
+            <div class="article-meta-left">
+              <span>ID: <span>[${post.id.slice(0, 10)}]</span></span>
+              <span>CATEGORY: <span>${post.category}</span></span>
+              <span>READ TIME: <span>${post.readTime}</span></span>
+            </div>
+            <div class="article-stardate">${post.stardate}</div>
           </div>
-          <div class="article-stardate">${post.stardate}</div>
+          <h3 class="article-card-title">${content.title}</h3>
+          <p class="article-card-summary">${content.summary}</p>
+          <div class="article-card-tags">
+            ${content.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+          </div>
         </div>
-        <h3 class="article-card-title">${content.title}</h3>
-        <p class="article-card-summary">${content.summary}</p>
-        <div class="article-card-tags">
-          ${content.tags.map(t => `<span class="tag">${t}</span>`).join('')}
-        </div>
-      </div>
-    `;
-  }).join('');
+      `;
+    }).join('');
+  }
+
+  // Render Pagination controls
+  if (paginationEl) {
+    if (totalPages <= 1) {
+      paginationEl.innerHTML = ''; // Hide pagination if only 1 page
+    } else {
+      const padZero = (n) => String(n).padStart(2, '0');
+      const prevLabel = isZH ? '[ 上一页 ]' : '[ PREV ]';
+      const nextLabel = isZH ? '[ 下一页 ]' : '[ NEXT ]';
+      const infoLabel = isZH ? `第 ${padZero(currentPage)} 页 / 共 ${padZero(totalPages)} 页` : `PAGE ${padZero(currentPage)} OF ${padZero(totalPages)}`;
+
+      paginationEl.innerHTML = `
+        <button class="paginator-btn" id="paginator-prev" ${currentPage === 1 ? 'disabled' : ''}>${prevLabel}</button>
+        <span class="paginator-info">${infoLabel}</span>
+        <button class="paginator-btn" id="paginator-next" ${currentPage === totalPages ? 'disabled' : ''}>${nextLabel}</button>
+      `;
+
+      // Event listeners
+      const prevBtn = paginationEl.querySelector('#paginator-prev');
+      const nextBtn = paginationEl.querySelector('#paginator-next');
+
+      if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+          if (currentPage > 1) {
+            currentPage--;
+            renderPostsList();
+            document.getElementById('posts').scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      }
+
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+          if (currentPage < totalPages) {
+            currentPage++;
+            renderPostsList();
+            document.getElementById('posts').scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      }
+    }
+  }
 
   bindCardInteractiveEffects();
 }
@@ -803,6 +869,12 @@ function renderPostDetail(postId) {
   function parseMarkdown(md) {
     let html = md.trim();
 
+    // Images: ![alt](url)
+    html = html.replace(/\!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" class="post-image" />');
+
+    // Links: [text](url)
+    html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+
     // Tables
     const tableRegex = /\|(.+)\|[\r\n]+\|[\s:\-|]+\|[\r\n]+((?:\|.+\|[\r\n]*)+)/g;
     html = html.replace(tableRegex, (match, headerRow, bodyRows) => {
@@ -819,17 +891,23 @@ function renderPostDetail(postId) {
     });
 
     // Code blocks with syntax highlighting placeholders
-    html = html.replace(/\`\`\`(javascript|css)([\s\S]*?)\`\`\`/g, (match, lang, code) => {
+    html = html.replace(/\`\`\`([a-zA-Z0-9+#-]+)?\r?\n([\s\S]*?)\`\`\`/g, (match, lang, code) => {
+      const displayLang = lang ? lang.toUpperCase() : 'CODE';
       const escapedCode = code
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
       return `<div class="code-block-container">
         <div class="code-block-header">
-          <span>${lang.toUpperCase()}</span>
+          <div class="mac-controls">
+            <span class="mac-dot mac-close"></span>
+            <span class="mac-dot mac-minimize"></span>
+            <span class="mac-dot mac-maximize"></span>
+          </div>
+          <span class="code-lang-label">${displayLang}</span>
           <button class="copy-code-btn" onclick="copyCodeText(this)">COPY</button>
         </div>
-        <pre><code class="language-${lang}">${escapedCode.trim()}</code></pre>
+        <pre><code class="language-${lang || 'txt'}">${escapedCode.trim()}</code></pre>
       </div>`;
     });
 
@@ -914,6 +992,11 @@ function renderPostDetail(postId) {
       </ul>
     </aside>
   `;
+
+  // Apply Highlight.js syntax highlighting to all code blocks
+  readerArea.querySelectorAll('pre code').forEach((el) => {
+    hljs.highlightElement(el);
+  });
 
   // Dynamic TOC generator
   const postBody = document.getElementById('post-body-content');
